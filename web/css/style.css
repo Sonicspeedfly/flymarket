@@ -1,0 +1,77 @@
+.fly-market {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
+}
+
+a.login {
+    position: absolute;
+    right: 20px;
+    top: 0;
+}
+
+p.login {
+    position: absolute;
+    right: 20px;
+    top: -20px;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 23px;
+}
+
+a.reg {
+    position:absolute;
+    right: 80px;
+    top: 0;
+}
+
+a:hover, a:active {
+    font-family: arial;
+}
+
+input {
+    height: 15px;
+    width: 40px;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto auto auto;
+}
+
+.imgproduct {
+    height: auto;
+    width: 150px;
+}
+
+.textproduct {
+    overflow-wrap: normal;
+    word-wrap: normal;
+    word-break: normal; 
+    line-break: auto;  
+    hyphens: manual;  
+}
+
+.product {
+    width: 90%;
+    background-color: ivory;
+    box-shadow: 4px 3px 2px 2px rgba(0, 0, 0, 0.15);
+}
+
+button {
+    border-style: none;
+    background-color: greenyellow;
+}
+
+body {  
+ background-color: mintcream;
+}
+
+.add {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
+}
