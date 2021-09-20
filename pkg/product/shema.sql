@@ -13,9 +13,11 @@ CREATE TABLE product (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     image TEXT NOT NULL,
+    category TEXT NOT NULL,
     file TEXT NOT NULL,
     information TEXT NOT NULL,
     count BIGINT NOT NULL,
+    price BIGINT NOT NULL,
     account_id BIGINT NOT NULL REFERENCES account,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
