@@ -41,6 +41,7 @@ func (s *Server) Init() {
 	productSubrouter.HandleFunc("/All", s.handleAllProduct).Methods(http.MethodGet)
 	productSubrouter.HandleFunc("/product.Remove", s.handleRemoveProduct).Methods(http.MethodGet)
 	productSubrouter.HandleFunc("/Buy", s.handleBuyProduct).Methods(http.MethodGet)
+	productSubrouter.HandleFunc("/installment", s.handleInstallment).Methods(http.MethodGet)
 	productSubrouter.HandleFunc("/", notFound).Methods(http.MethodGet)
 }
 

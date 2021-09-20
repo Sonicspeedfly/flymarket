@@ -47,7 +47,7 @@ func execute(host string, port string, dsn string) (err error) {
 	accountsSvc := accounts.NewService(db)
 	productSvc := product.NewService(db)
 	server := app.NewServer(mux, accountsSvc, productSvc)
-	log.Println("server strat")
+	log.Println("server start")
 
 	a := func(server *app.Server) *http.Server {
 		server.Init()

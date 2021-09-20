@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/Sonicspeedfly/flymarket/pkg/product"
 )
 
 
@@ -32,8 +34,10 @@ func (s *Server) handleSaveProduct(writer http.ResponseWriter, request *http.Req
 	accidParam := request.URL.Query().Get("accountid")
 	nameParam := request.FormValue("name")
 	imageParam := request.FormValue("image")
+	categoryParam := request.FormValue("category")
 	informationParam := request.FormValue("information")
 	countParam := request.PostFormValue("count")
+	priceParam := request.FormValue("price")
 	images := filepath.Ext(imageParam)
 	
 	file, fileHeader, err := request.FormFile("image")
@@ -56,7 +60,13 @@ func (s *Server) handleSaveProduct(writer http.ResponseWriter, request *http.Req
 		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	item, err := s.productSvc.SaveProduct(request.Context(), id, nameParam, images, nameParam, informationParam, count, accid)
+	price, err := strconv.ParseInt(priceParam, 10, 64)
+	if err != nil {
+		log.Print(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	item, err := s.productSvc.SaveProduct(request.Context(), id, nameParam, images, categoryParam, nameParam, informationParam, count, price, accid)
 	if err != nil {
 		log.Print(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -66,7 +76,7 @@ func (s *Server) handleSaveProduct(writer http.ResponseWriter, request *http.Req
 	namefile := item.NameProduct + "." + images
 	idtext := strconv.Itoa(int(item.ID))
 	uploadFile(file, idtext, "./web/banners/", namefile)
-	item, _ = s.productSvc.SaveProduct(request.Context(), item.ID, item.NameProduct, item.Image, namefile, item.Information, item.Count, item.Account_ID)
+	item, _ = s.productSvc.SaveProduct(request.Context(), item.ID, item.NameProduct, item.Image, item.Category, namefile, item.Information, item.Count, item.Price, item.Account_ID)
 	data, err := json.Marshal(item)
 	if err != nil {
 		log.Print(err)
@@ -97,8 +107,10 @@ func (s *Server) handleEditProduct(writer http.ResponseWriter, request *http.Req
 	}
 	nameParam := request.FormValue("name")
 	imageParam := request.FormValue("image")
+	categoryParam := request.FormValue("category")
 	informationParam := request.FormValue("information")
 	countParam := request.PostFormValue("count")
+	priceParam := request.PostFormValue("price")
 	accidParam := request.PostFormValue("accountid")
 	images := filepath.Ext(imageParam)
 
@@ -123,7 +135,14 @@ func (s *Server) handleEditProduct(writer http.ResponseWriter, request *http.Req
 		return
 	}
 
-	item, err := s.productSvc.SaveProduct(request.Context(), id, nameParam, images, nameParam, informationParam, count, accid)
+	price, err := strconv.ParseInt(priceParam, 10, 64)
+	if err != nil {
+		log.Print(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	item, err := s.productSvc.SaveProduct(request.Context(), id, nameParam, images, categoryParam, nameParam, informationParam, count, price, accid)
 	if err != nil {
 		log.Print(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -133,7 +152,7 @@ func (s *Server) handleEditProduct(writer http.ResponseWriter, request *http.Req
 	namefile := item.NameProduct + "." + images
 	idtext := strconv.Itoa(int(item.ID))
 	uploadFile(file, idtext, "../web/banners/", namefile)
-	item, _ = s.productSvc.SaveProduct(request.Context(), item.ID, item.NameProduct, item.Image, namefile, item.Information, item.Count, item.Account_ID)
+	item, _ = s.productSvc.SaveProduct(request.Context(), item.ID, item.NameProduct, item.Image, item.Category, namefile, item.Information, item.Count, item.Price, item.Account_ID)
 	data, err := json.Marshal(item)
 	if err != nil {
 		log.Print(err)
@@ -250,6 +269,54 @@ func (s *Server) handleBuyProduct(writer http.ResponseWriter, request *http.Requ
 		return
 	}
 	item, err := s.productSvc.BuyProduct(request.Context(), id, count)
+	if err != nil {
+		log.Print(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(item)
+	if err != nil {
+		log.Print(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	_, err = writer.Write(data)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func (s *Server) handleInstallment(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set("Access-Control-Allow-Origin", "*")
+	idParam := request.URL.Query().Get("id")
+	monthsParam := request.URL.Query().Get("months")
+	categoryParam := request.URL.Query().Get("category")
+	priceParam := request.URL.Query().Get("price")
+
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		log.Print(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	months, err := strconv.ParseInt(monthsParam, 10, 64)
+	if err != nil {
+		log.Print(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	price, err := strconv.ParseInt(priceParam, 10, 64)
+	if err != nil {
+		log.Print(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	item, err := product.Calc(request.Context(), id, months, categoryParam, price)
+	if errors.Is(err, errors.New("Not Found")) {
+		http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	}
+	
 	if err != nil {
 		log.Print(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
