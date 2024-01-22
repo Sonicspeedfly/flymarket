@@ -4,7 +4,7 @@ CREATE TABLE account (
     email TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     pass TEXT NOT NULL,
-    roles TEXT[] NOT NULL DEFAULT '{}'
+    roles TEXT[] NOT NULL DEFAULT '{}',
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,15 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .addproduct {
+            width: 45%;
+            height: 77%;
+            position: fixed;
+            margin-top: 8%;
+            margin-left: 30%;
+            padding: 2.5% 2.5%;
+            background-color: aliceblue;
+            border-radius: 7%;
+        }
+    </style>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-</head>
-<body onload="scorGame()">
-    <script src="./add/add.js"></script>
-        <div class="addproduct">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script src="./add/add.js"></script>
+    <section class="hidden addproduct">
+        <form action="../index.html" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="demoInputName" class="form-label">Название</label>
+            <input type="text" class="form-control form-control-sm" id="inputName" name="name">
         </div>
+        <div class="mb-3">
+            <label for="demoInputEmail" class="form-label">Информация</label>
+            <input type="text" class="form-control form-control-lg" id="inputInformation" name="information">
+        </div>
+        <div class="mb-3">
+            <select name="form-select" id="inputCategory" name="category">
+                <option value="smartphone">Смартфон</option>
+                <option value="computer">Компьютер</option>
+                <option value="TV">Телевизор</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="demoInputFile" class="form-label">Фото продукта</label>
+            <input class="form-control" type="file" id="inputFile" name="image">
+        </div>
+        <div class="mb-3">
+            <label for="demoInputNumber" class="form-label">Количество</label>
+            <input type="number" class="form-control" id="inputCount" name="count">
+        </div>
+        <div class="mb-3">
+            <label for="demoInputNumber" class="form-label">Цена</label>
+            <input type="number" class="form-control" id="inputPrice" name="price">
+        </div>
+    </form>
+    <button onclick="scorGame()" type="submit" class="btn btn-primary btn-lg btn-block">Добавить товар</button>
+    </section>
+        <!--<div class="addproduct">
+
+        </div> -->
 </body>
 </html>

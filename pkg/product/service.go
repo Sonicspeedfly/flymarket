@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
 )
 
 type Service struct {
@@ -20,16 +19,16 @@ func NewService(db *sql.DB) *Service {
 }
 
 type Product struct {
-	ID          int64  		`json:"id"`
-	NameProduct string 		`json:"name"`
-	Image       string 		`json:"image"`
-	Category	string		`json:"category"`
-	File  		string		`json:"file"`
-	Information string 		`json:"information"`
-	Count       int64  		`json:"count"`
-	Price		int64		`json:"price"`
-	Account_ID  int64		`json:"accountid"`
-	Created     string 		`json:"created"`
+	ID          int64  `json:"id"`
+	NameProduct string `json:"name"`
+	Image       string `json:"image"`
+	Category    string `json:"category"`
+	File        string `json:"file"`
+	Information string `json:"information"`
+	Count       int64  `json:"count"`
+	Price       int64  `json:"price"`
+	Account_ID  int64  `json:"accountid"`
+	Created     string `json:"created"`
 }
 
 func (s *Service) ByID(ctx context.Context, id int64) (*Product, error) {
@@ -37,7 +36,7 @@ func (s *Service) ByID(ctx context.Context, id int64) (*Product, error) {
 
 	err := s.db.QueryRowContext(ctx, `
 		SELECT id, name, image, category, file, information, count, price, account_id, created FROM product WHERE id = $1
-	`, id).Scan(&item.ID, &item.NameProduct, &item.Image, &item.Category,  &item.File, &item.Information, &item.Count, &item.Price, &item.Account_ID, &item.Created)
+	`, id).Scan(&item.ID, &item.NameProduct, &item.Image, &item.Category, &item.File, &item.Information, &item.Count, &item.Price, &item.Account_ID, &item.Created)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, errors.New("item not found")
@@ -57,7 +56,7 @@ func (s *Service) SaveProduct(ctx context.Context, id int64, name string, image 
 		time := strings.Split(times.String(), ".")
 		_, err := s.db.ExecContext(ctx, `
 			UPDATE product 
-			SET name = $2, image = $3, categoty = $4 file = $5, information = $6, count = $7, price = $8, account_id = $9, created = $10
+			SET name = $2, image = $3, category = $4, file = $5, information = $6, count = $7, price = $8, account_id = $9, created = $10
 			WHERE id = $1
 			RETURNING id
 		`, id, name, image, category, file, information, count, price, account_id, time[0])
@@ -120,21 +119,21 @@ func (s *Service) RemoveByID(ctx context.Context, id int64) (*Product, error) {
 }
 
 func (s *Service) BuyProduct(ctx context.Context, id int64, count int64) (*Product, error) {
-		ProductID, err := s.ByID(ctx, id)
-			if err != nil {
-				log.Print(err)
-			}
-		if ((ProductID.Count == 1) || (ProductID.Count <= count)) {
-			ProductID.Count -= ProductID.Count
-			s.RemoveByID(ctx, id)
-			return ProductID, nil
-		}
-		if (ProductID.Count > 0) {
-			ProductID.Count -= count
-			s.SaveProduct(ctx, ProductID.ID, ProductID.NameProduct, ProductID.Image, ProductID.Category, ProductID.File, ProductID.Information, ProductID.Count, ProductID.Price, ProductID.Account_ID)
-			return ProductID, nil
-		}
-		return nil, errors.New(http.StatusText(http.StatusInternalServerError))
+	ProductID, err := s.ByID(ctx, id)
+	if err != nil {
+		log.Print(err)
+	}
+	if (ProductID.Count == 1) || (ProductID.Count <= count) {
+		ProductID.Count -= ProductID.Count
+		s.RemoveByID(ctx, id)
+		return ProductID, nil
+	}
+	if ProductID.Count > 0 {
+		ProductID.Count -= count
+		s.SaveProduct(ctx, ProductID.ID, ProductID.NameProduct, ProductID.Image, ProductID.Category, ProductID.File, ProductID.Information, ProductID.Count, ProductID.Price, ProductID.Account_ID)
+		return ProductID, nil
+	}
+	return nil, errors.New(http.StatusText(http.StatusInternalServerError))
 }
 
 func Calc(ctx context.Context, id int64, months int64, category string, price int64) (int64, error) {
@@ -144,24 +143,24 @@ func Calc(ctx context.Context, id int64, months int64, category string, price in
 	//	}
 	products := Product{
 		Category: category,
-		Price: price,
+		Price:    price,
 	}
 	sum := int64(0)
 	prodproc := int64(0)
 	rangeMonths := int64(0)
-	if (products.Category == "smartphone") { 
+	if products.Category == "smartphone" {
 		prodproc = 3
 		rangeMonths = 9
 		sum = CategoryCalc(products, months, rangeMonths, prodproc)
 		return sum, nil
 	}
-	if (products.Category == "computer") { 
+	if products.Category == "computer" {
 		prodproc = 4
 		rangeMonths = 12
 		sum = CategoryCalc(products, months, rangeMonths, prodproc)
 		return sum, nil
 	}
-	if (products.Category == "TV") {
+	if products.Category == "TV" {
 		prodproc = 5
 		rangeMonths = 18
 		sum = CategoryCalc(products, months, rangeMonths, prodproc)
@@ -171,24 +170,24 @@ func Calc(ctx context.Context, id int64, months int64, category string, price in
 	return 0, errors.New("the request was executed incorrectly or this category is not in the list")
 }
 
-func CategoryCalc(product Product, months int64, rangeMonths int64, prodproc int64) (int64) {
-		proc := int64(0)	
-		proctime := int64(3)
-		procplus := int64(0)
-		if (months > rangeMonths) {
-			if((months % 12 == 0) && (months > 12) || (months > 12)) {
-				if ((months / 12 != 2) && (months > 24)) {
-					proctime += 3 * (months / 12)
-				}
-				proctime += 3
-				if ((months - rangeMonths != 6) && (months - rangeMonths != 12)) {
-				procplus = 1
-				}
+func CategoryCalc(product Product, months int64, rangeMonths int64, prodproc int64) int64 {
+	proc := int64(0)
+	proctime := int64(3)
+	procplus := int64(0)
+	if months > rangeMonths {
+		if (months%12 == 0) && (months > 12) || (months > 12) {
+			if (months/12 != 2) && (months > 24) {
+				proctime += 3 * (months / 12)
 			}
-			procplus += (months - rangeMonths) / proctime			
-			proc = procplus * prodproc
+			proctime += 3
+			if (months-rangeMonths != 6) && (months-rangeMonths != 12) {
+				procplus = 1
+			}
 		}
-		sumproc := product.Price * proc / 100
-		sum := product.Price + sumproc
-		return sum
+		procplus += (months - rangeMonths) / proctime
+		proc = procplus * prodproc
+	}
+	sumproc := product.Price * proc / 100
+	sum := product.Price + sumproc
+	return sum
 }

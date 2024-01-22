@@ -15,9 +15,8 @@ import (
 	"github.com/Sonicspeedfly/flymarket/pkg/product"
 )
 
-
-
 func (s *Server) handleSaveProduct(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set("Access-Control-Allow-Origin", "*")
 	err := request.ParseMultipartForm(64 << 40)
 	if err != nil {
 		log.Println(err)
@@ -39,7 +38,7 @@ func (s *Server) handleSaveProduct(writer http.ResponseWriter, request *http.Req
 	countParam := request.PostFormValue("count")
 	priceParam := request.FormValue("price")
 	images := filepath.Ext(imageParam)
-	
+
 	file, fileHeader, err := request.FormFile("image")
 
 	if err == nil {
@@ -72,7 +71,7 @@ func (s *Server) handleSaveProduct(writer http.ResponseWriter, request *http.Req
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	
+
 	namefile := item.NameProduct + "." + images
 	idtext := strconv.Itoa(int(item.ID))
 	uploadFile(file, idtext, "./web/banners/", namefile)
@@ -148,7 +147,7 @@ func (s *Server) handleEditProduct(writer http.ResponseWriter, request *http.Req
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	
+
 	namefile := item.NameProduct + "." + images
 	idtext := strconv.Itoa(int(item.ID))
 	uploadFile(file, idtext, "../web/banners/", namefile)
@@ -167,6 +166,7 @@ func (s *Server) handleEditProduct(writer http.ResponseWriter, request *http.Req
 }
 
 func (s *Server) handleByIdProduct(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set("Access-Control-Allow-Origin", "*")
 	idParam := request.URL.Query().Get("id")
 
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -179,7 +179,7 @@ func (s *Server) handleByIdProduct(writer http.ResponseWriter, request *http.Req
 	if errors.Is(err, errors.New("Not Found")) {
 		http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	}
-	
+
 	if err != nil {
 		log.Print(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -316,7 +316,7 @@ func (s *Server) handleInstallment(writer http.ResponseWriter, request *http.Req
 	if errors.Is(err, errors.New("Not Found")) {
 		http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	}
-	
+
 	if err != nil {
 		log.Print(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -344,7 +344,7 @@ func uploadFile(file multipart.File, dir string, path string, namefile string) e
 	if err != nil {
 		return errors.New("not readble data")
 	}
-	
+
 	err = ioutil.WriteFile(path+dir+"/"+namefile, data, 0666)
 
 	if err != nil {
